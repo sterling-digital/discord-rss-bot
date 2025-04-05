@@ -46,17 +46,23 @@ client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
   if (interaction.commandName === 'latest') {
-    const feed = await parser.parseURL(FEED_URL);
-    const item = feed.items[0];
+    try {
+      await interaction.deferReply(); // Acknowledge first, prevents timeouts
 
-    const embed = new EmbedBuilder()
-      .setTitle(item.title || "Latest RSS Item")
-      .setURL(item.link)
-      .setDescription(item.contentSnippet || "")
-      .setTimestamp(new Date(item.pubDate))
-      .setFooter({ text: "From RSS Feed" });
+      const feed = await parser.parseURL(FEED_URL);
+      const item = feed.items[0];
 
-    await interaction.reply({ embeds: [embed] });
+      const embed = new EmbedBuilder()
+        .setTitle(item.title || "Latest RSS Item")
+        .setURL(item.link)
+        .setDescription(item.contentSnippet || "")
+        .setTimestamp(new Date(item.pubDate))
+        .setFooter({ text: "From RSS Feed" });
+
+      await interaction.editReply({ embeds: [embed] }); // Now send the embed safely
+    } catch (err) {
+      console.error("Error handling /latest command:", err);
+    }
   }
 });
 

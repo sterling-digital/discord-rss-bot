@@ -12,17 +12,21 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 let latestItem = null;
 
-client.once('ready', () => {
-  console.log(`Logged in as ${client.user.tag}`);
-  const channel = client.channels.cache.get(CHANNEL_ID);
+const checkFeed = async () => {
+  const feed = await parser.parseURL(FEED_URL);
+  if (!latestItem || feed.items[0].link !== latestItem) {
+    latestItem = feed.items[0].link;
 
-  const checkFeed = async () => {
-    const feed = await parser.parseURL(FEED_URL);
-    if (!latestItem || feed.items[0].link !== latestItem) {
-      latestItem = feed.items[0].link;
-      channel.send(`📰 New post: ${feed.items[0].title} - ${feed.items[0].link}`);
-    }
-  };
+    const embed = new EmbedBuilder()
+      .setTitle(feed.items[0].title || "New RSS Item")
+      .setURL(feed.items[0].link)
+      .setDescription(feed.items[0].contentSnippet || "")
+      .setTimestamp(new Date(feed.items[0].pubDate))
+      .setFooter({ text: "From RSS Feed" });
+
+    channel.send({ embeds: [embed] });
+  }
+};
 
   // Check every 5 minutes
   checkFeed();

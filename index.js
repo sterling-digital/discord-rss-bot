@@ -1,7 +1,7 @@
 require('dotenv').config();
 
-const http = require('http');
-http.createServer(() => {}).listen(3000);
+// const http = require('http');
+// http.createServer(() => {}).listen(3000);
 
 const { REST, Routes, SlashCommandBuilder, Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const Parser = require('rss-parser');
